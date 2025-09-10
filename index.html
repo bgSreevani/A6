@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Abstract Factory Pattern — Demo (HTML + JS)</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    body{max-width:900px;margin:32px auto;padding:20px;background:#fafafa;color:#111}
+    h1{font-size:1.6rem;margin-bottom:8px}
+    .card{background:white;border-radius:8px;padding:16px;box-shadow:0 6px 18px rgba(20,20,20,0.06);margin-bottom:14px}
+    label{display:block;margin-top:8px;font-weight:600}
+    select,input{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #ddd}
+    button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#0b74de;color:white;cursor:pointer}
+    pre{background:#111;color:#f7f7f7;padding:12px;border-radius:6px;overflow:auto}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    small{color:#555}
+  </style>
+</head>
+<body>
+  <h1>Abstract Factory Pattern — Interactive Demo</h1>
+  <p class="card">This page demonstrates the Abstract Factory Pattern implemented in JavaScript. Choose a factory family, select a product, and perform the product's action. You can switch factories without changing client code.</p>
+
+  <div class="card">
+    <label for="factorySelect">Factory (Family)</label>
+    <select id="factorySelect">
+      <option value="payment">PaymentFactory (Food Delivery)</option>
+      <option value="loan">LoanFactory (Banking)</option>
+      <option value="shipping">ShippingFactory (E‑commerce)</option>
+      <option value="vehicle">VehicleFactory (Ride‑Hailing)</option>
+    </select>
+
+    <label for="productSelect">Product</label>
+    <select id="productSelect"></select>
+
+    <label for="amountInput">Amount / Info (number for money, text for other)</label>
+    <input id="amountInput" placeholder="e.g. 500 or 'NYC -> LON'" />
+
+    <div class="row">
+      <div class="col"><button id="createBtn">Create & Execute</button></div>
+      <div class="col"><button id="clearBtn" style="background:#888">Clear Log</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Console Output</h3>
+    <pre id="log">/* Actions will appear here */</pre>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Abstract Product Interfaces (described by method names)
+    // ---------------------------
+
+    // ---------------------------
+    // Concrete Products for Payments
+    // ---------------------------
+    class UpiPayment {
+      pay(amount){ return `Paid ${amount} via UPI.`; }
+    }
+    class WalletPayment {
+      pay(amount){ return `Paid ${amount} via Wallet.`; }
+    }
+    class CreditCardPayment {
+      pay(amount){ return `Paid ${amount} via Credit Card.`; }
+    }
+    class CODPayment {
+      pay(amount){ return `Cash collected on delivery: ${amount}.`; }
+    }
+
+    // ---------------------------
+    // Concrete Products for Loans
+    // ---------------------------
+    class HomeLoan {
+      apply(amount){ return `Home Loan applied for ₹${amount}.`; }
+    }
+    class CarLoan {
+      apply(amount){ return `Car Loan applied for ₹${amount}.`; }
+    }
+    class EducationLoan {
+      apply(amount){ return `Education Loan applied for ₹${amount}.`; }
+    }
+
+    // ---------------------------
+    // Concrete Products for Shipping
+    // ---------------------------
+    class StandardShipping {
+      ship(info){ return `Standard shipping created for ${info}. (5-7 days)`; }
+    }
+    class ExpressShipping {
+      ship(info){ return `Express shipping created for ${info}. (1-2 days)`; }
+    }
+    class InternationalShipping {
+      ship(info){ return `International shipping created for ${info}. (varies)`; }
+    }
+
+    // ---------------------------
+    // Concrete Products for Vehicles (Ride-hailing)
+    // ---------------------------
+    class Bike {
+      assignDriver(name){ return `Bike assigned with driver ${name || 'Anonymous'}. ETA 3 mins`; }
+    }
+    class Auto {
+      assignDriver(name){ return `Auto assigned with driver ${name || 'Anonymous'}. ETA 5 mins`; }
+    }
+    class Car {
+      assignDriver(name){ return `Car assigned with driver ${name || 'Anonymous'}. ETA 2 mins`; }
+    }
+
+    // ---------------------------
+    // Abstract Factory Interfaces (factories expose creation methods)
+    // ---------------------------
+
+    class PaymentFactory {
+      create(type){ throw new Error('Not implemented'); }
+    }
+    class LoanFactory {
+      create(type){ throw new Error('Not implemented'); }
+    }
+    class ShippingFactory {
+      create(type){ throw new Error('Not implemented'); }
+    }
+    class VehicleFactory {
+      create(type){ throw new Error('Not implemented'); }
+    }
+
+    // ---------------------------
+    // Concrete Factories
+    // ---------------------------
+    class FoodDeliveryPaymentFactory extends PaymentFactory{
+      create(type){
+        switch(type){
+          case 'UPI': return new UpiPayment();
+          case 'Wallet': return new WalletPayment();
+          case 'CreditCard': return new CreditCardPayment();
+          case 'COD': return new CODPayment();
+          default: throw new Error('Unknown payment type');
+        }
+      }
+    }
+
+    class BankingLoanFactory extends LoanFactory{
+      create(type){
+        switch(type){
+          case 'HomeLoan': return new HomeLoan();
+          case 'CarLoan': return new CarLoan();
+          case 'EducationLoan': return new EducationLoan();
+          default: throw new Error('Unknown loan type');
+        }
+      }
+    }
+
+    class EcommerceShippingFactory extends ShippingFactory{
+      create(type){
+        switch(type){
+          case 'StandardShipping': return new StandardShipping();
+          case 'ExpressShipping': return new ExpressShipping();
+          case 'InternationalShipping': return new InternationalShipping();
+          default: throw new Error('Unknown shipping type');
+        }
+      }
+    }
+
+    class RideVehicleFactory extends VehicleFactory{
+      create(type){
+        switch(type){
+          case 'Bike': return new Bike();
+          case 'Auto': return new Auto();
+          case 'Car': return new Car();
+          default: throw new Error('Unknown vehicle type');
+        }
+      }
+    }
+
+    // ---------------------------
+    // Client code (uses factories without depending on concrete classes)
+    // ---------------------------
+
+    const UI = {
+      factorySelect: document.getElementById('factorySelect'),
+      productSelect: document.getElementById('productSelect'),
+      amountInput: document.getElementById('amountInput'),
+      createBtn: document.getElementById('createBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      log: document.getElementById('log')
+    };
+
+    // Mapping: factory id -> {factoryInstance, products: [ {id,label,action}] }
+    const FACTORIES = {
+      payment: {
+        factory: new FoodDeliveryPaymentFactory(),
+        products: [
+          {id:'UPI', label:'UPI'},
+          {id:'Wallet', label:'Wallet'},
+          {id:'CreditCard', label:'Credit Card'},
+          {id:'COD', label:'Cash on Delivery'}
+        ],
+        action: (product, input) => product.pay(input)
+      },
+      loan: {
+        factory: new BankingLoanFactory(),
+        products: [
+          {id:'HomeLoan', label:'Home Loan'},
+          {id:'CarLoan', label:'Car Loan'},
+          {id:'EducationLoan', label:'Education Loan'}
+        ],
+        action: (product, input) => product.apply(input)
+      },
+      shipping: {
+        factory: new EcommerceShippingFactory(),
+        products: [
+          {id:'StandardShipping', label:'Standard Shipping'},
+          {id:'ExpressShipping', label:'Express Shipping'},
+          {id:'InternationalShipping', label:'International Shipping'}
+        ],
+        action: (product, input) => product.ship(input)
+      },
+      vehicle: {
+        factory: new RideVehicleFactory(),
+        products: [
+          {id:'Bike', label:'Bike'},
+          {id:'Auto', label:'Auto'},
+          {id:'Car', label:'Car'}
+        ],
+        action: (product, input) => product.assignDriver(input)
+      }
+    };
+
+    function populateProducts(){
+      const key = UI.factorySelect.value;
+      const cfg = FACTORIES[key];
+      UI.productSelect.innerHTML = '';
+      for(const p of cfg.products){
+        const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.label; UI.productSelect.appendChild(opt);
+      }
+      UI.amountInput.placeholder = key === 'shipping' ? "e.g. 'Mumbai -> Dubai'" : "e.g. 500";
+    }
+
+    function log(msg){
+      const prev = UI.log.textContent.trim();
+      UI.log.textContent = prev ? prev + "\n" + msg : msg;
+    }
+
+    UI.factorySelect.addEventListener('change', populateProducts);
+
+    UI.createBtn.addEventListener('click', ()=>{
+      try{
+        const key = UI.factorySelect.value;
+        const cfg = FACTORIES[key];
+        const prodId = UI.productSelect.value;
+        const input = UI.amountInput.value || 'N/A';
+
+        // client asks factory to create product
+        const product = cfg.factory.create(prodId);
+
+        // client uses the product through the shared method name (action)
+        const result = cfg.action(product, input);
+
+        log(`Factory: ${key} | Product: ${prodId} -> ${result}`);
+
+      }catch(e){
+        log('Error: ' + e.message);
+      }
+    });
+
+    UI.clearBtn.addEventListener('click', ()=>{ UI.log.textContent = ''; UI.amountInput.value = ''; });
+
+    // initialize
+    populateProducts();
+
+    // Demonstration: switching families without changing client code
+    // The client code above always calls: factory.create(id) and then uses the product via an agreed method.
+    // We can switch FACTORIES["payment"].factory = someOtherFactory() at runtime and client remains unchanged.
+
+  </script>
+</body>
+</html>
